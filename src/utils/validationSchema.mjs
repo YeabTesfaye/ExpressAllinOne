@@ -1,36 +1,59 @@
 export const createUserValidationSchema = {
   username: {
-    isLength: {
-      Options: {
-        min: 5,
-        max: 32,
-      },
-    },
-    errorMessage:
-      "username must be at least 5 characters with max of 32 characters",
-
+    in: ["body"],
     notEmpty: {
-      errorMessage: "username cannot be empty",
+      errorMessage: "Username can't be empty",
     },
     isString: {
-      errorMessage: "username must be a string",
+      errorMessage: "Username must be a string",
+    },
+    trim: true,
+    escape: true,
+    isLength: {
+      options: { min: 5, max: 32 },
+      errorMessage: "Username must be between 5 to 32 characters",
     },
   },
   displayName: {
-    isLength: {
-      Options: {
-        min: 5,
-        max: 32,
-      },
-    },
-    errorMessage:
-      "username must be at least 5 characters with max of 32 characters",
-
+    in: ["body"],
     notEmpty: {
-      errorMessage: "display Name cannot be empty",
+      errorMessage: "Display Name can't be empty",
     },
     isString: {
-      erorMessage: "username must be a string",
+      errorMessage: "Display Name must be a string",
+    },
+    trim: true,
+    isLength: {
+      options: { min: 5, max: 32 },
+      errorMessage: "Display Name must be between 5 to 32 characters",
+    },
+  },
+};
+
+export const updateUserValidationSchema = {
+  username: {
+    in: ["body"],
+    optional: true, // Make the field optional for PATCH requests
+    isString: {
+      errorMessage: "Username must be a string",
+    },
+    trim: true,
+    escape: true,
+    isLength: {
+      options: { min: 5, max: 32 },
+      errorMessage: "Username must be between 5 to 32 characters",
+    },
+  },
+  displayName: {
+    in: ["body"],
+    optional: true, // Make the field optional for PATCH requests
+    isString: {
+      errorMessage: "Display Name must be a string",
+    },
+    trim: true,
+    isLength: {
+      options: { min: 5, max: 32 },
+      errorMessage: "Display Name must be between 5 to 32 characters",
     },
   },
 };
