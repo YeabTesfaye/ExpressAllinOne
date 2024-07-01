@@ -1,5 +1,6 @@
 import express from "express";
-
+import { query, validationResult, body, matchedData,checkSchema } from "express-validator";
+import {createUserValidationSchema} from './utils/validationSchema.mjs';
 const app = express();
 const mockUsers = [
   { id: 1, username: "jack", displayName: "Yakob" },
@@ -17,6 +18,25 @@ const mockProducts = [
   { id: 129, name: "Gomen", price: 10.0 },
   { id: 130, name: "Kolo", price: 8.0 },
 ];
+const validateUserQuery = [
+  query("filter")
+    .optional()
+    .isIn(["id", "username", "displayName"])
+    .withMessage("Filter must be one of id, username, or displayName")
+    .isString()
+    .trim()
+    .escape(),
+  query("value").optional().isString().trim().escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
 
 // middleware to parse incomming request
 app.use(express.json());
@@ -37,7 +57,7 @@ const validateUserId = (req, res, next) => {
   next();
 };
 
-app.get("/api/users", (req, res) => {
+app.get("/api/users", validateUserQuery, (req, res) => {
   const {
     query: { filter, value },
   } = req;
@@ -77,9 +97,12 @@ app.get("/api/products/:id", (req, res) => {
   res.sendStatus(404);
 });
 
-app.post("/api/users", (req, res) => {
-  const { body } = req;
-  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body };
+app.post("/api/users",checkSchema(createUserValidationSchema), (req, res) => {
+
+  const data = matchedData(req);
+
+  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...data };
+  console.log(data);
   mockUsers.push(newUser);
   res.status(201).send(newUser);
 });
@@ -90,10 +113,14 @@ app.put("/api/users/:id", validateUserId, (req, res) => {
   mockUsers[userIndex] = { id: mockUsers[userIndex].id, ...body };
   res.status(201).send({ msg: "User is updated Sucessfully" });
 });
-app.patch("/api/users/:id",validateUserId, (req, res) => {
+app.patch("/api/users/:id", validateUserId, (req, res) => {
   const { body, userIndex } = req;
 
-  mockUsers[userIndex] = { ...mockUsers[userIndex].idf, ...body, id:mockUsers[userIndex].id };
+  mockUsers[userIndex] = {
+    ...mockUsers[userIndex].idf,
+    ...body,
+    id: mockUsers[userIndex].id,
+  };
   res.status(201).send({ msg: "User is updated Sucessfully" });
 });
 
