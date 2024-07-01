@@ -20,12 +20,24 @@ const mockProducts = [
 
 // middleware to parse incomming request
 app.use(express.json());
-app.get("/", (req, res) => {
-  res.status(200).send({ msg: "Hello" });
-});
+const validateUserId = (req, res, next) => {
+  const { id } = req.params;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) {
+    return res.status(400).send({ msg: "Bad request Invalid Id" });
+  }
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) {
+    return res.sendStatus(404);
+  }
+  req.userIndex = findUserIndex;
+  next();
+};
 
 app.get("/api/users", (req, res) => {
-  console.log(req.query);
   const {
     query: { filter, value },
   } = req;
@@ -45,18 +57,10 @@ app.get("/api/users", (req, res) => {
   return res.send(mockUsers);
 });
 
-app.get("/api/users/:id", (req, res) => {
-  const { id } = req.params;
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) {
-    return res.status(400).send({ msg: "Bad request Invalid Id" });
-  }
-  const user = mockUsers.find((user) => {
-    return user.id === parsedId;
-  });
-
+app.get("/api/users/:id", validateUserId, (req, res) => {
+  const { userIndex } = req;
+  const user = mockUsers[userIndex];
   if (user) return res.status(200).send({ user });
-  res.sendStatus(404);
 });
 
 app.get("/api/products", (req, res) => {
@@ -74,77 +78,30 @@ app.get("/api/products/:id", (req, res) => {
 });
 
 app.post("/api/users", (req, res) => {
-  console.log(req.body);
   const { body } = req;
   const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body };
   mockUsers.push(newUser);
   res.status(201).send(newUser);
 });
 
-app.put("/api/users/:id", (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
+app.put("/api/users/:id", validateUserId, (req, res) => {
+  const { body, userIndex } = req;
 
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) {
-    return res.status(400).send({ msg: "Bad request Invalid Id" });
-  }
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex == -1) {
-    return res.sendStatus(404);
-  }
-  mockUsers[findUserIndex] = { id: findUserIndex, ...body };
+  mockUsers[userIndex] = { id: mockUsers[userIndex].id, ...body };
   res.status(201).send({ msg: "User is updated Sucessfully" });
 });
-app.patch("/api/users/:id", (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
+app.patch("/api/users/:id",validateUserId, (req, res) => {
+  const { body, userIndex } = req;
 
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) {
-    return res.status(400).send({ msg: "Bad request Invalid Id" });
-  }
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex == -1) {
-    return res.sendStatus(404);
-  }
-  mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
+  mockUsers[userIndex] = { ...mockUsers[userIndex].idf, ...body, id:mockUsers[userIndex].id };
   res.status(201).send({ msg: "User is updated Sucessfully" });
 });
 
 app.delete("/api/users/:id", (req, res) => {
-  const { id } = req.params;
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) {
-    return res.status(400).send({ msg: "Bad request invlaid Id" });
-  }
-  console.log(parsedId);
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-  app.delete("/api/users/:id", (req, res) => {
-    const { id } = req.params;
-    const parsedId = parseInt(id);
-    if (isNaN(parsedId)) {
-      return res.status(400).send({ msg: "Bad request invalid Id" });
-    }
-    const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-    if (findUserIndex == -1) {
-      return res.sendStatus(404);
-    }
-    mockUsers.splice(findUserIndex, 1);
+  const { userIndex } = req;
 
-    return res.sendStatus(204);
-  });
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
-  mockUsers.splice(findUserIndex, 1);
-
-  return res.sendStatus(404);
+  mockUsers.splice(userIndex, 1);
+  return res.sendStatus(204);
 });
+
 export default app;
