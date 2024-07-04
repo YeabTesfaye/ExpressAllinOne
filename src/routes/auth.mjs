@@ -1,11 +1,10 @@
 import { Router } from "express";
-// import '../strategies/local-strategy.mjs';
-import passport from "../strategies/local-strategy.mjs";
-import { getStatus, login } from "../controller/auth.mjs";
+import { login, signup,deleteUser } from "../controller/auth.mjs";
 const router = Router();
 
-router.post("", login);
+router.post("/login", login);
+router.post("/signup", signup);
 
-router.get("/status",getStatus);
+router.delete("/:id", deleteUser);
 
 export default router;

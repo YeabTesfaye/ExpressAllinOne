@@ -1,33 +1,34 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { mockUsers } from "../utils/constants.mjs";
-
+import User from "../mongoose/user.mjs";
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
+passport.deserializeUser(async (id, done) => {
   try {
-    const user = mockUsers.find((user) => user.id === id);
-    if (!user) throw new Error("User Not Found");
+    const user = await User.findById(id);
     done(null, user);
-  } catch (error) {
-    done(error, null);
+  } catch (err) {
+    done(err);
   }
 });
-
-const strategy = new LocalStrategy((username, password, done) => {
-  try {
-    const user = mockUsers.find((user) => user.username === username);
-
-    if (!user) throw new Error("User not found");
-    if (user.password !== password) throw new Error("Bad Credentials");
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-});
-
-passport.use(strategy);
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return done(null, false, { message: "Incorrect username." });
+      }
+      const isMatch = await user.isValidPassword(password);
+      if (!isMatch) {
+        return done(null, false, { message: "Incorrect password." });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  })
+);
 
 export default passport;
