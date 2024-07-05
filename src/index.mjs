@@ -7,8 +7,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.PORT);
-const PORT = process.env.PORT;
+
+const PORT = process.env.PORT | 8080;
 const app = express();
 
 mongoose
@@ -16,8 +16,8 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
     // Start the server only after a successful connection
-    app.listen(3000, () => {
-      console.log(`Server is running on port ${3000}`);
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   })
   .catch((err) => console.log(`Error: ${err}`));

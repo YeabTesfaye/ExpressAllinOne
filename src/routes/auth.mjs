@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, signup,deleteUser } from "../controller/auth.mjs";
+import { login, signup, deleteUser } from "../controller/auth.mjs";
 const router = Router();
 
 router.post("/login", login);

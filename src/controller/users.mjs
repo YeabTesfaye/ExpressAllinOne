@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
 import User from "../mongoose/user.mjs";
 import mongoose from "mongoose";
-// Controller to get all users, with optional filtering
 // GET /api/users
 export const getUsers = async (req, res) => {
   const {

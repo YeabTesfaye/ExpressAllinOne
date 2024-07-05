@@ -1,16 +1,15 @@
 import passport from "../strategies/local-strategy.mjs";
 import User from "../mongoose/user.mjs";
+import { signupSchema } from "../utils/validationSchema.mjs";
 // POST /api/auth/login
 export const login = (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+  passport.authenticate("local", (err, user) => {
     if (err) {
-    
       return res.status(500).json({ message: "Authentication error" });
     }
-   
+
     if (!user) {
-      
-      return res.status(401).json({ message: info.message });
+      return res.status(401).json({ message: "Auth Failed" });
     }
     req.logIn(user, (err) => {
       if (err) {
@@ -21,10 +20,13 @@ export const login = (req, res, next) => {
   })(req, res, next);
 };
 
-
 // Post /api/auth/signup
 export const signup = async (req, res) => {
   const { username, displayName, password } = req.body;
+  const { error } = signupSchema.validate({ username, displayName, password });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   try {
     // Check if user already exists
@@ -52,7 +54,7 @@ export const signup = async (req, res) => {
 
 // DELETE /api/auth/:id
 export const deleteUser = async (req, res) => {
-  const { id } = req.params; // Assuming the user ID is passed as a URL parameter
+  const { id } = req.params;
 
   try {
     const deletedUser = await User.findByIdAndDelete(id);

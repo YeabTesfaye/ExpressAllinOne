@@ -1,3 +1,4 @@
+import Joi from "joi";
 export const createUserValidationSchema = {
   username: {
     in: ["body"],
@@ -57,3 +58,9 @@ export const updateUserValidationSchema = {
     },
   },
 };
+
+export const signupSchema = Joi.object({
+  username: Joi.string().min(3).max(30).required(),
+  displayName: Joi.string().min(3).max(30).required(),
+  password: Joi.string().min(6).required(),
+});

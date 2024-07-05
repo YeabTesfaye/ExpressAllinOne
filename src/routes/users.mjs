@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkSchema, matchedData, validationResult } from "express-validator";
+import { checkSchema } from "express-validator";
 import {
   createUserValidationSchema,
   updateUserValidationSchema,
@@ -19,15 +19,7 @@ router.get("/:id", getUserById);
 
 router.post("", checkSchema(createUserValidationSchema), createUser);
 
-router.put(
-  "/:id",
-  checkSchema(createUserValidationSchema),
-  updateUser
-);
-router.patch(
-  "/:id",
-  checkSchema(updateUserValidationSchema),
-  patchUser
-);
+router.put("/:id", checkSchema(createUserValidationSchema), updateUser);
+router.patch("/:id", checkSchema(updateUserValidationSchema), patchUser);
 
 export default router;
