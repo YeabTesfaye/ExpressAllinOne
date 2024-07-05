@@ -5,8 +5,8 @@ import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import MongoStore from "connect-mongo";
 dotenv.config();
-
 
 const PORT = process.env.PORT | 8080;
 const app = express();
@@ -32,6 +32,10 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 24,
     },
+    store: MongoStore.create({
+      client: mongoose.connection.getClient(),
+      ttl: 24 * 60 * 60, // TTL set to 24 hours (in seconds)
+    }),
   })
 );
 

@@ -6,7 +6,12 @@ export const getUsers = async (req, res) => {
   const {
     query: { filter, value },
   } = req;
-
+  req.sessionStore.get(req.session.id, (err, sessionData) => {
+    if (err) {
+      console.log("Error retrieving session data:", err);
+      throw err;
+    }
+  });
   try {
     let users;
 
