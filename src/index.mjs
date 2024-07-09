@@ -12,7 +12,7 @@ const PORT = process.env.PORT | 8080;
 const app = express();
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/ExpressAllinone")
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Connected to MongoDB");
     // Start the server only after a successful connection
